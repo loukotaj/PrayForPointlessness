@@ -1,0 +1,26 @@
+{
+    // .vscode/launch.json
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Run Game (main.py)",
+        "type": "python",
+        "request": "launch",
+  
+        // 👉 point to your entry‑file
+        "program": "${workspaceFolder}/main.py",
+  
+        // optional: "console": "integratedTerminal" | "externalTerminal"
+        "console": "integratedTerminal",
+  
+        // Show full traceback on crashes
+        "justMyCode": false,
+  
+        // If you need env‑vars (e.g., SDL video tweaks)
+        "env": {
+          "PYGAME_HIDE_SUPPORT_PROMPT": "1"
+        }
+      }
+    ]
+  }
+  

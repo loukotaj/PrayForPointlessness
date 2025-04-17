@@ -1,0 +1,9 @@
+[project]
+name      = "circle-tower"
+entry     = "main.py"        # your real entry point
+assets    = ["images", "music", "slides.py"]  # folders or files to bundle
+android = false
+
+[meta]
+fullscreen = true            # canvas fills tab
+fps        = 60              # vsync target
