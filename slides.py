@@ -1,14 +1,4 @@
-"""
-All narrative text & illustration references consumed by the UI.
-
-Each dict:
-  • "text"  – rendered by pygame (manual \n breaks)
-  • "art"   – filename in images/  (None = no picture)
-"""
-
-# ───────────────────────────── INTRO  (5 journal pages)
 INTRO_SLIDES = [
-    # 1 ─────────────────────────────────────────────
     {
         "text": (
             "Journal #1 — The Bruised City\n"
@@ -20,7 +10,6 @@ INTRO_SLIDES = [
         ),
         "art": "intro_1_city.png"
     },
-    # 2 ─────────────────────────────────────────────
     {
         "text": (
             "Journal #2 — Dents and Fences\n"
@@ -32,7 +21,6 @@ INTRO_SLIDES = [
         ),
         "art": "intro_2_fences.png"
     },
-    # 3 ─────────────────────────────────────────────
     {
         "text": (
             "Journal #3 — The Elder Circle\n"
@@ -46,7 +34,6 @@ INTRO_SLIDES = [
         ),
         "art": "intro_3_roundabout.png"
     },
-    # 4 ─────────────────────────────────────────────
     {
         "text": (
             "Journal #4 — Tower of Roundness\n"
@@ -58,7 +45,6 @@ INTRO_SLIDES = [
         ),
         "art": "intro_4_construction.png"
     },
-    # 5 ─────────────────────────────────────────────
     {
         "text": (
             "Journal #5 — Horizon of Points\n"
@@ -73,7 +59,6 @@ INTRO_SLIDES = [
     },
 ]
 
-# ───────────────────────────── MID-GAME  (after wave 5 & 10)
 MID_SLIDES_A = [
     {
         "text": (
@@ -94,7 +79,7 @@ MID_SLIDES_A = [
             "Stars paused their flickering.\n\n"
             "“They hear it now,” he whispered.  “The Great Circle echoes back.”"
         ),
-        "art": "mid1b_listen.png"   # new illustration if you add one
+        "art": "mid1b_listen.png"
     },
 ]
 
@@ -121,7 +106,6 @@ MID_SLIDES_B = [
     },
 ]
 
-# ───────────────────────────── VICTORY / DEFEAT
 VICTORY_SLIDES = [
     {
         "text": (
@@ -129,29 +113,25 @@ VICTORY_SLIDES = [
             "Curvature folds inward, light bends outward…\n"
             "The Great Circle is here."
         ),
-        "art": "victory_appear.png"      # towering glow, sky-wide ring
+        "art": "victory_appear.png"
     },
     {
-        # 2) The Pulse
         "text": (
             "A single, rolling wave expands in every direction.\n"
             "Corners melt, edges sigh, angles dissolve into gentle arcs.\n"
             "In one heartbeat, the world becomes point-less."
         ),
-        "art": "victory_blast.png"       # concentric shockwave smoothing cityscape
+        "art": "victory_blast.png"
     },
     {
-        # 3) Utopia
         "text": (
             "Roads loop effortlessly, towers spiral in harmony.\n"
             "Shapes glide—not clash—across a seamless horizon.\n\n"
             "Happily ever after, everything rolls."
         ),
-        "art": "victory_utopia.png"      # serene, fully rounded landscape
+        "art": "victory_utopia.png"
     },
 ]
-
-
 
 DEFEAT_SLIDES = [
     {

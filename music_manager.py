@@ -1,34 +1,25 @@
-# music_manager.py
-"""
-Category‑based soundtrack controller.
-Works with the six sub‑folders:
-    intro • menu • battle • fame • victory • defeat
-"""
-
 import os, random
 import pygame
 
 MUSIC_ROOT = os.path.join(os.path.dirname(__file__), "music")
 
 class MusicMode:
-    INTRO   = "intro"    # story / cut‑scenes before play
-    MENU    = "menu"     # upgrade screen or help overlay (optional)
-    BATTLE  = "battle"   # mid game cutscene
-    GAME    = "game"     # regular gameplay
-    VICTORY = "victory"  # final win screen
-    DEFEAT  = "defeat"   # game‑over
+    INTRO   = "intro"
+    MENU    = "menu"
+    BATTLE  = "battle"
+    GAME    = "game"
+    VICTORY = "victory"
+    DEFEAT  = "defeat"
 
 class MusicManager:
     _tracks   : dict[str, list[str]] = {}
     _cur_mode : str | None = None
     _sfx_cache: dict[str, pygame.mixer.Sound] = {}
 
-    # ------------------------------------------------------------
     @classmethod
     def init(cls, volume: float = 0.7):
         pygame.mixer.init()
         pygame.mixer.music.set_volume(volume)
-        # scan available folders
         for folder in os.listdir(MUSIC_ROOT):
             path = os.path.join(MUSIC_ROOT, folder)
             if os.path.isdir(path):
@@ -38,7 +29,6 @@ class MusicManager:
                     if f.lower().endswith((".mp3", ".ogg", ".wav"))
                 ]
 
-    # ------------------------------------------------------------
     @classmethod
     def set_mode(cls, mode: str):
         if mode == cls._cur_mode or mode not in cls._tracks:
@@ -57,7 +47,6 @@ class MusicManager:
 
     @classmethod
     def play_sfx(cls, name: str):
-        """Play a short sound effect from the music/ directory (e.g., 'laser.mp3')."""
         path = os.path.join(MUSIC_ROOT, name)
         if not os.path.isfile(path):
             return

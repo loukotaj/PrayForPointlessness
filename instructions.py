@@ -19,7 +19,6 @@ def draw_instructions(screen):
     overlay = pygame.Surface(INSTRUCTIONS_OVERLAY_SIZE, pygame.SRCALPHA)
     overlay.fill((0, 0, 0, INSTRUCTIONS_OVERLAY_ALPHA))
     screen.blit(overlay, (WIDTH//2 - INSTRUCTIONS_OVERLAY_SIZE[0]//2, HEIGHT//2 - INSTRUCTIONS_OVERLAY_SIZE[1]//2))
-
     y_off = HEIGHT//2 - INSTRUCTIONS_OVERLAY_SIZE[1]//2 + 20
     for line in lines:
         ts = font.render(line, True, (255, 255, 255))
