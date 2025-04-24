@@ -47,32 +47,46 @@ class MusicManager:
         pygame.mixer.music.fadeout(ms)
 
     @classmethod
-    def play_sfx(cls, name: str):
-        # --- Web workaround: use JS audio for SFX if on pygbag/web ---
+    def play_sfx(cls, name: str, volume: float = 0.7):
+        """
+        Cross-platform SFX helper.
+        ▸ Desktop  → pygame.mixer.Sound
+        ▸ Web      → HTML5 Audio (pygbag / emscripten)
+        """
+        # ---------- WEB ----------
         if sys.platform == "emscripten":
             try:
                 import js
-                # Try to play the SFX using browser Audio
-                js.eval(f"""
-                (function(){{
-                    let sfx = new Audio('/music/{name}');
-                    sfx.volume = 0.7;
-                    sfx.play();
-                }})();
-                """)
-            except Exception:
-                pass
+
+                url = f"music/{name}"
+                js.console.log(f"[MusicManager] play_sfx → {url}")
+
+                if name not in cls._sfx_cache:
+                    cls._sfx_cache[name] = js.Audio.new(url)
+                    cls._sfx_cache[name].volume = volume
+
+                sfx = cls._sfx_cache[name]
+                sfx.currentTime = 0  # rewind for rapid retrigger
+                sfx.play().catch(lambda _: js.console.warn(f"Failed SFX: {url}"))
+            except Exception as e:
+                js.console.error(f"SFX error: {e}")
             return
-        # --- Desktop: use pygame.mixer.Sound as before ---
+
+        # ---------- DESKTOP ----------
         path = os.path.join(MUSIC_ROOT, name)
         if not os.path.isfile(path):
+            print(f"[MusicManager] SFX file not found: {path}")
             return
+
         if name not in cls._sfx_cache:
             try:
                 cls._sfx_cache[name] = pygame.mixer.Sound(path)
-            except Exception:
+                cls._sfx_cache[name].set_volume(volume)
+            except Exception as e:
+                print(f"[MusicManager] SFX load error: {e}")
                 return
+
         try:
             cls._sfx_cache[name].play()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[MusicManager] SFX play error: {e}")
