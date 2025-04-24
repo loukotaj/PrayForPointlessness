@@ -56,7 +56,7 @@ class Player:
                                damage=self.bullet_damage,
                                is_friendly=True))
                 self.fire_timer = self.fire_cooldown
-                MusicManager.play_sfx("laser.mp3")  # <-- play sound effect
+                MusicManager.play_sfx("laser.ogg")  # <-- play sound effect
 
         # -------- invincibility frames -----------------------------------
         if self.iframes: self.iframes -= 1
@@ -66,7 +66,7 @@ class Player:
         if self.iframes: return
         self.health  = max(0, self.health - dmg)
         self.iframes = self.iframes_max
-        MusicManager.play_sfx("hurt.mp3")  # <-- play hurt sound
+        MusicManager.play_sfx("hurt.ogg")  # <-- play hurt sound
 
     # ================================================================ DRAW
     def draw(self, surf):

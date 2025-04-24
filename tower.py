@@ -56,7 +56,7 @@ class CentralTower:
                     self.shot_timer=self.shot_cooldown
                     self.firing=True
                     self.firing_timer=self.firing_flash_duration
-                    MusicManager.play_sfx("laser.mp3")
+                    MusicManager.play_sfx("laser.ogg")
 
     def find_nearest_enemy(self, enemies):
         best=None
@@ -74,7 +74,7 @@ class CentralTower:
         if self.health<0:
             self.health=0
         self.damage_flash_timer=self.damage_flash_duration
-        MusicManager.play_sfx("break.mp3")  # <-- play break sound
+        MusicManager.play_sfx("break.ogg")  # <-- play break sound
 
     def draw(self,surface):
         if self.health<=0: return
@@ -156,7 +156,7 @@ class PlayerTower:
                     self.shot_timer=self.shot_cooldown
                     self.firing=True
                     self.firing_timer=self.firing_flash_duration
-                    MusicManager.play_sfx("laser.mp3")
+                    MusicManager.play_sfx("laser.ogg")
 
     def find_nearest_enemy(self,enemies):
         best=None

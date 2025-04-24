@@ -97,7 +97,7 @@ class BaseEnemy:
                         is_friendly=False
                     )
                     projectiles.append(proj)
-                    MusicManager.play_sfx("laser.mp3")
+                    MusicManager.play_sfx("laser.ogg")
                 self.shot_timer = self.shot_cooldown
 
     def handle_melee_attack(self, player, towers, central_tower):

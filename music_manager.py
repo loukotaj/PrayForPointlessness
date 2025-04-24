@@ -51,29 +51,7 @@ class MusicManager:
         """
         Cross-platform SFX helper.
         ▸ Desktop  → pygame.mixer.Sound
-        ▸ Web      → HTML5 Audio (pygbag / emscripten)
         """
-        # ---------- WEB ----------
-        if sys.platform == "emscripten":
-            try:
-                import js
-
-                url = f"music/sfx/{name}"
-                js.console.log(f"[MusicManager] play_sfx → {url}")
-
-                if name not in cls._sfx_cache:
-                    cls._sfx_cache[name] = js.Audio.new(url)
-                    cls._sfx_cache[name].volume = volume
-
-                sfx = cls._sfx_cache[name]
-                sfx.currentTime = 0  # rewind for rapid retrigger
-                # Remove .catch, just call play()
-                sfx.play()
-            except Exception as e:
-                js.console.error(f"SFX error: {e}")
-            return
-
-        # ---------- DESKTOP ----------
         path = os.path.join(MUSIC_ROOT, "sfx", name)
         if not os.path.isfile(path):
             print(f"[MusicManager] SFX file not found: {path}")
