@@ -58,7 +58,7 @@ class MusicManager:
             try:
                 import js
 
-                url = f"music/{name}"
+                url = f"music/sfx/{name}"
                 js.console.log(f"[MusicManager] play_sfx → {url}")
 
                 if name not in cls._sfx_cache:
@@ -73,7 +73,7 @@ class MusicManager:
             return
 
         # ---------- DESKTOP ----------
-        path = os.path.join(MUSIC_ROOT, name)
+        path = os.path.join(MUSIC_ROOT, "sfx", name)
         if not os.path.isfile(path):
             print(f"[MusicManager] SFX file not found: {path}")
             return
