@@ -1,5 +1,6 @@
 import os, random
 import pygame
+import sys
 
 MUSIC_ROOT = os.path.join(os.path.dirname(__file__), "music")
 
@@ -47,6 +48,22 @@ class MusicManager:
 
     @classmethod
     def play_sfx(cls, name: str):
+        # --- Web workaround: use JS audio for SFX if on pygbag/web ---
+        if sys.platform == "emscripten":
+            try:
+                import js
+                # Try to play the SFX using browser Audio
+                js.eval(f"""
+                (function(){{
+                    let sfx = new Audio('/music/{name}');
+                    sfx.volume = 0.7;
+                    sfx.play();
+                }})();
+                """)
+            except Exception:
+                pass
+            return
+        # --- Desktop: use pygame.mixer.Sound as before ---
         path = os.path.join(MUSIC_ROOT, name)
         if not os.path.isfile(path):
             return
