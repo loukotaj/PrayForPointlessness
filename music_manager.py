@@ -67,7 +67,8 @@ class MusicManager:
 
                 sfx = cls._sfx_cache[name]
                 sfx.currentTime = 0  # rewind for rapid retrigger
-                sfx.play().catch(lambda _: js.console.warn(f"Failed SFX: {url}"))
+                # Remove .catch, just call play()
+                sfx.play()
             except Exception as e:
                 js.console.error(f"SFX error: {e}")
             return
