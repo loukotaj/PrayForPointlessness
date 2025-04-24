@@ -4,11 +4,12 @@ from typing import List
 from projectile import Projectile
 from enemy import BaseEnemy
 from utils import draw_health_bar
+from music_manager import MusicManager
 
 class CentralTower:
     def __init__(self, x, y,
                  max_health=200, radius=40,
-                 shot_cooldown=60, shot_speed=5,
+                 shot_cooldown=40, shot_speed=5,
                  shot_damage=5, shot_range=300):
         self.x = x
         self.y = y
@@ -55,6 +56,7 @@ class CentralTower:
                     self.shot_timer=self.shot_cooldown
                     self.firing=True
                     self.firing_timer=self.firing_flash_duration
+                    MusicManager.play_sfx("laser.mp3")
 
     def find_nearest_enemy(self, enemies):
         best=None
@@ -72,6 +74,7 @@ class CentralTower:
         if self.health<0:
             self.health=0
         self.damage_flash_timer=self.damage_flash_duration
+        MusicManager.play_sfx("break.mp3")  # <-- play break sound
 
     def draw(self,surface):
         if self.health<=0: return
@@ -97,7 +100,7 @@ class CentralTower:
 class PlayerTower:
     def __init__(self, x, y,
                  max_health=80, radius=20,
-                 shot_cooldown=60, shot_speed=5,
+                 shot_cooldown=40, shot_speed=5,
                  shot_damage=4, shot_range=200):
         self.x = x
         self.y = y
@@ -118,9 +121,14 @@ class PlayerTower:
         self.damage_flash_duration=20
         self.damage_flash_timer=0
 
+        self.regen_rate = 0.08  # Health per frame (about 5 per second at 60fps)
+
     def update(self, enemies, projectiles):
         if self.health<=0:
             return
+        # Regenerate health if not at max
+        if self.health < self.max_health:
+            self.health = min(self.max_health, self.health + self.regen_rate)
         if self.shot_timer>0:
             self.shot_timer-=1
         if self.firing:
@@ -148,6 +156,7 @@ class PlayerTower:
                     self.shot_timer=self.shot_cooldown
                     self.firing=True
                     self.firing_timer=self.firing_flash_duration
+                    MusicManager.play_sfx("laser.mp3")
 
     def find_nearest_enemy(self,enemies):
         best=None

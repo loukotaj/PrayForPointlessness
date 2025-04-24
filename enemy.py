@@ -3,6 +3,7 @@ import math
 import random
 from projectile import Projectile
 from utils import draw_health_bar
+from music_manager import MusicManager
 
 class BaseEnemy:
     def __init__(self, x, y, speed, health, damage, kill_reward,
@@ -11,9 +12,6 @@ class BaseEnemy:
         self.x = x
         self.y = y
         self.speed = speed
-        self.max_health = health
-        self.health = health
-        self.damage = damage
         self.kill_reward = kill_reward
         self.shot_cooldown = shot_cooldown
         self.shot_timer = 0
@@ -22,9 +20,15 @@ class BaseEnemy:
         self.size = size
         self.can_shoot = can_shoot
         self.melee_range = melee_range
-        self.melee_damage = melee_damage
         self.melee_cooldown = melee_cooldown
         self.melee_timer = 0
+
+        # Scale health and damage by difficulty
+        diff = getattr(pygame, "difficulty", 1.0)
+        self.max_health = health * diff
+        self.health = self.max_health
+        self.damage = damage * diff
+        self.melee_damage = melee_damage * diff
 
         # For a hit flash
         self.is_hit = False
@@ -93,6 +97,7 @@ class BaseEnemy:
                         is_friendly=False
                     )
                     projectiles.append(proj)
+                    MusicManager.play_sfx("laser.mp3")
                 self.shot_timer = self.shot_cooldown
 
     def handle_melee_attack(self, player, towers, central_tower):
@@ -221,6 +226,8 @@ def spawn_enemy(shape_type, tier, x, y):
         return SquareEnemy(x, y, tier)
     elif shape_type == "star":
         return StarEnemy(x, y, tier)
+    elif shape_type == "boss":
+        return BossEnemy(x, y, tier)
     else:
         return SquareEnemy(x, y, tier=1)
 
@@ -234,7 +241,8 @@ class TriangleEnemy(BaseEnemy):
         shot_cooldown = 999  # effectively never shoots
         shot_speed = 0
         shot_range = 0
-        size = 28 + 2*(tier-1)
+        # Make size scale more strongly with tier
+        size = 28 + 8*(tier-1)
         # Melee range = 35 + 5*(tier-1)
         super().__init__(
             x, y,
@@ -302,7 +310,8 @@ class SquareEnemy(BaseEnemy):
         shot_cooldown = 80 - 8*(tier-1)
         shot_speed = 3 + 0.3*(tier-1)
         shot_range = 220 + 20*(tier-1)
-        size = 32 + 2*(tier-1)
+        # Make size scale more strongly with tier
+        size = 32 + 10*(tier-1)
         super().__init__(
             x, y,
             speed=speed,
@@ -366,7 +375,8 @@ class StarEnemy(BaseEnemy):
         shot_cooldown = 60 - 7*(tier-1)
         shot_speed = 5 + 0.5*(tier-1)
         shot_range = 260 + 20*(tier-1)
-        size = 28 + 2*(tier-1)
+        # Make size scale more strongly with tier
+        size = 28 + 9*(tier-1)
         super().__init__(
             x, y,
             speed=speed,
@@ -474,3 +484,85 @@ class StarEnemy(BaseEnemy):
             bar_x = int(self.x)
             bar_y = int(self.y - 12)
             draw_health_bar(surface, bar_x, bar_y, bar_width, bar_height, self.health, self.max_health, color_fg=(220,80,80), border_width=1)
+
+class BossEnemy(BaseEnemy):
+    def __init__(self, x, y, tier=1):
+        # Boss stats: much larger, much more health, much slower
+        health = 300 + 300*(tier-1)  # Increased health
+        speed = 0.7 + 0.1*(tier-1)   # Much slower
+        damage = 18 + 4*(tier-1)
+        kill_reward = 50 + 10*(tier-1)
+        shot_cooldown = 36 - 3*(tier-1)  # much faster
+        shot_speed = 7 + 1*(tier-1)
+        shot_range = 350 + 30*(tier-1)
+        size = 80 + 10*(tier-1)
+        super().__init__(
+            x, y,
+            speed=speed,
+            health=health,
+            damage=damage,
+            kill_reward=kill_reward,
+            shot_cooldown=shot_cooldown,
+            shot_speed=shot_speed,
+            shot_range=shot_range,
+            size=size,
+            can_shoot=True,
+            melee_range=55,
+            melee_damage=damage,
+            melee_cooldown=30
+        )
+        self.color = (255, 80, 200)
+        self.tier = tier
+        self.phase = 0
+        self.phase_timer = 0
+
+    def update_special_behavior(self):
+        # Boss alternates between normal and "rage" phase (faster speed/attacks)
+        if self.phase == 0:
+            if self.special_timer > 0:
+                self.special_timer -= 1
+            else:
+                self.phase = 1
+                self.speed *= 1.7
+                self.shot_cooldown = max(10, int(self.shot_cooldown * 0.5))
+                self.phase_timer = 90
+        elif self.phase == 1:
+            if self.phase_timer > 0:
+                self.phase_timer -= 1
+            else:
+                self.phase = 0
+                self.speed /= 1.7
+                self.shot_cooldown = int(self.shot_cooldown / 0.5)
+                self.special_timer = 180
+
+    def draw(self, surface):
+        # Unique boss look: octagon with spikes
+        cx = self.x + self.size // 2
+        cy = self.y + self.size // 2
+        base_color = (255, 80, 200) if not self.is_hit else (255,255,255)
+        # Draw octagon
+        oct_points = []
+        num_sides = 8
+        r = self.size // 2
+        for i in range(num_sides):
+            angle = 2 * math.pi * i / num_sides - math.pi / 8  # rotate a bit for visual appeal
+            px = cx + r * math.cos(angle)
+            py = cy + r * math.sin(angle)
+            oct_points.append((px, py))
+        pygame.draw.polygon(surface, base_color, oct_points)
+        # Draw spikes
+        num_spikes = 8
+        r_outer = r + 18
+        for i in range(num_spikes):
+            angle = 2 * math.pi * i / num_spikes - math.pi / 8
+            x1 = cx + r * math.cos(angle)
+            y1 = cy + r * math.sin(angle)
+            x2 = cx + r_outer * math.cos(angle)
+            y2 = cy + r_outer * math.sin(angle)
+            pygame.draw.line(surface, (255, 180, 255), (x1, y1), (x2, y2), 5)
+        # Health bar
+        bar_width = self.size
+        bar_height = 12
+        bar_x = int(self.x)
+        bar_y = int(self.y - 20)
+        draw_health_bar(surface, bar_x, bar_y, bar_width, bar_height, self.health, self.max_health, color_fg=(255,80,200), border_width=2)

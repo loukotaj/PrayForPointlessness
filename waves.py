@@ -40,6 +40,7 @@ WAVES = [
             {"type": "triangle", "tier": 2, "count": 4},
             {"type": "square",   "tier": 1, "count": 4},
             {"type": "star",     "tier": 1, "count": 2},
+            {"type": "boss",     "tier": 1, "count": 1},  # Boss appears!
         ],
         "reward": 26,
         "spawn_rate": 62,
@@ -78,6 +79,7 @@ WAVES = [
             {"type": "triangle", "tier": 3, "count": 6},
             {"type": "square",   "tier": 3, "count": 4},
             {"type": "star",     "tier": 2, "count": 4},
+            {"type": "boss",     "tier": 2, "count": 1},  # Boss appears!
         ],
         "reward": 58,
         "spawn_rate": 52,
@@ -107,6 +109,7 @@ WAVES = [
             {"type": "triangle", "tier": 4, "count": 6},
             {"type": "square",   "tier": 4, "count": 6},
             {"type": "star",     "tier": 3, "count": 6},
+            {"type": "boss",     "tier": 3, "count": 1},  # Boss appears!
         ],
         "reward": 100,
         "spawn_rate": 44,
@@ -127,6 +130,7 @@ WAVES = [
             {"type": "triangle", "tier": 4, "count": 10},
             {"type": "square",   "tier": 4, "count": 10},
             {"type": "star",     "tier": 4, "count": 10},
+            {"type": "boss",     "tier": 4, "count": 1},  # Final boss!
         ],
         "reward": 150,
         "spawn_rate": 38,

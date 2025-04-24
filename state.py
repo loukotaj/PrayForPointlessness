@@ -40,6 +40,7 @@ from music_manager import MusicManager, MusicMode    # ← NEW
 # ──────────────────────────────────────────────────────────
 #   high‑level states
 # ──────────────────────────────────────────────────────────
+STATE_MAINMENU = -1  # Add main menu state
 STATE_SLIDES  = 0
 STATE_GAME    = 1
 STATE_VICTORY = 2
@@ -51,7 +52,7 @@ class GameState:
     #   static “singletons”
     # ------------------------------------------------------------------
     screen: pygame.Surface = None
-    current_state         = STATE_SLIDES
+    current_state         = STATE_MAINMENU  # Start at main menu
 
     player:        Player        = None
     central_tower: CentralTower  = None
@@ -64,12 +65,18 @@ class GameState:
     show_upgrades  = False
     show_help      = True
 
+    difficulty = 1.0  # Default difficulty (1.0 = normal)
+    mainmenu_slider = 1.0  # For UI slider
+    mainmenu_slider_drag = False
+
     # wave bookkeeping
     wave_index        = 0
     step_index        = 0
     remaining_in_step = 0
     spawn_timer       = 0
     wave_running      = False
+    wave_timer        = 0  # Add a timer for the current wave
+    wave_time_limit   = 3600  # 1 minute at 60fps
 
     # slides / cut‑scenes
     slide_list  = INTRO_SLIDES
@@ -86,7 +93,7 @@ class GameState:
     @classmethod
     def init(cls, scr: pygame.Surface):
         cls.screen        = scr
-        cls.current_state = STATE_SLIDES
+        cls.current_state = STATE_MAINMENU  # Start at main menu
         cls.slide_list    = INTRO_SLIDES
         cls.slide_index   = 0
         cls.mid_a_shown   = cls.mid_b_shown = False
@@ -112,6 +119,7 @@ class GameState:
         cls.remaining_in_step = 0
         cls.spawn_timer       = 0
         cls.wave_running      = False
+        cls.wave_timer        = 0
 
         cls.upgrade_manager = UpgradeManager(cls.player, cls.central_tower, cls.towers)
         cls.upgrade_menu    = UpgradeMenu(cls.upgrade_manager)
@@ -120,10 +128,36 @@ class GameState:
         cls.show_help     = True
 
     # ==============================================================
-    #                        EVENT HANDLER
-    # ==============================================================
+
     @classmethod
     def process_event(cls, e: pygame.event.Event):
+        # ---------- main menu ----------
+        if cls.current_state == STATE_MAINMENU:
+            if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
+                mx, my = e.pos
+                # Slider
+                slider_rect = cls._mainmenu_slider_rect()
+                slider_rect.y += 80  # match the y-offset in _draw_mainmenu
+                if slider_rect.collidepoint(mx, my):
+                    cls.mainmenu_slider_drag = True
+                    cls._mainmenu_update_slider(mx)
+                    return  # Don't start game if slider is clicked
+                # Start button
+                btn_rect = cls._mainmenu_btn_rect()
+                btn_rect.y += 90  # match the y-offset in _draw_mainmenu
+                if btn_rect.collidepoint(mx, my):
+                    cls.difficulty = cls.mainmenu_slider
+                    pygame.difficulty = cls.difficulty  # <-- Set global difficulty for enemy.py
+                    cls.current_state = STATE_SLIDES
+                    MusicManager.set_mode(MusicMode.INTRO)
+                    return
+            elif e.type == pygame.MOUSEBUTTONUP and e.button == 1:
+                cls.mainmenu_slider_drag = False
+            elif e.type == pygame.MOUSEMOTION and cls.mainmenu_slider_drag:
+                mx, _ = e.pos
+                cls._mainmenu_update_slider(mx)
+            return
+
         # ---------- slides ----------
         if cls.current_state == STATE_SLIDES:
             if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
@@ -187,11 +221,35 @@ class GameState:
                             cls.player.money -= 50
                         # Optionally: else play error sound or flash message
 
+    @classmethod
+    def _mainmenu_btn_rect(cls):
+        w, h = 320, 70
+        x = WIDTH // 2 - w // 2
+        y = HEIGHT // 2 + 100
+        return pygame.Rect(x, y, w, h)
+
+    @classmethod
+    def _mainmenu_slider_rect(cls):
+        # Slider bar area
+        sw, sh = 400, 32
+        sx = WIDTH // 2 - sw // 2
+        sy = HEIGHT // 2 + 10
+        return pygame.Rect(sx, sy, sw, sh)
+
+    @classmethod
+    def _mainmenu_update_slider(cls, mx):
+        sw = 400
+        sx = WIDTH // 2 - sw // 2
+        rel = (mx - sx) / sw
+        rel = max(0, min(1, rel))
+        cls.mainmenu_slider = round(0.5 + 1.5 * rel, 2)
+
     # ==============================================================
-    #                          UPDATE
-    # ==============================================================
+
     @classmethod
     def update(cls):
+        if cls.current_state == STATE_MAINMENU:
+            cls._draw_mainmenu(); return
         if cls.current_state == STATE_SLIDES:
             cls._draw_slides(); return
         if cls.current_state == STATE_GAME:
@@ -200,6 +258,49 @@ class GameState:
             cls._draw_slides(); return
         if cls.current_state == STATE_DEFEAT:
             cls._draw_slides(); return
+
+    @classmethod
+    def _draw_mainmenu(cls):
+        cls.screen.fill((20, 20, 40))
+        font_big = pygame.font.SysFont(None, 80, bold=True)
+        font = pygame.font.SysFont(None, 38)
+        font_small = pygame.font.SysFont(None, 28)
+        # Title
+        title = font_big.render("Pray for Pointlessness", True, (255, 255, 120))
+        cls.screen.blit(title, title.get_rect(center=(WIDTH//2, HEIGHT//2 - 160)))  # moved up
+        # Subtitle
+        sub = font.render("Defend the Signal. Restore Roundness.", True, (180, 220, 255))
+        cls.screen.blit(sub, sub.get_rect(center=(WIDTH//2, HEIGHT//2 - 100)))  # moved up
+        # Difficulty slider
+        slider_rect = cls._mainmenu_slider_rect()
+        slider_rect.y += 80  # move slider further down (was 30)
+        pygame.draw.rect(cls.screen, (60, 60, 80), slider_rect, border_radius=10)
+        # Slider bar
+        bar_y = slider_rect.y + slider_rect.height // 2
+        pygame.draw.line(cls.screen, (180,180,180), (slider_rect.x+16, bar_y), (slider_rect.x+slider_rect.width-16, bar_y), 6)
+        # Slider knob
+        rel = (cls.mainmenu_slider - 0.5) / 1.5
+        knob_x = int(slider_rect.x + 16 + rel * (slider_rect.width - 32))
+        pygame.draw.circle(cls.screen, (255, 220, 80), (knob_x, bar_y), 16)
+        # Slider label
+        diff_txt = f"Difficulty: {cls.mainmenu_slider:.2f}x"
+        txt = font.render(diff_txt, True, (255,255,255))
+        cls.screen.blit(txt, (slider_rect.x, slider_rect.y - 54))  # more space above slider
+        # Min/max
+        min_txt = font_small.render("Easy", True, (180,255,180))
+        max_txt = font_small.render("Hard", True, (255,180,180))
+        cls.screen.blit(min_txt, (slider_rect.x-8, bar_y+28))  # more space below bar
+        cls.screen.blit(max_txt, (slider_rect.x+slider_rect.width-60, bar_y+28))
+        # Start button
+        btn_rect = cls._mainmenu_btn_rect()
+        btn_rect.y += 90  # move button further down (was 40)
+        pygame.draw.rect(cls.screen, (80, 180, 80), btn_rect, border_radius=12)
+        btn_label = font.render("START", True, (255,255,255))
+        cls.screen.blit(btn_label, btn_label.get_rect(center=btn_rect.center))
+        # Instructions
+        hint = font_small.render("Use the slider to set difficulty. Click START to play.", True, (200,200,200))
+        cls.screen.blit(hint, hint.get_rect(center=(WIDTH//2, HEIGHT//2 + 300)))  # move hint further down
+        pygame.display.flip()
 
     # --------------------------------------------------------------
     #                      SLIDE HELPERS
@@ -292,7 +393,25 @@ class GameState:
 
         # waves
         if cls.wave_running:
+            cls.wave_timer += 1  # Increment wave timer
             cls._spawner_step()
+            # Check if wave is taking too long
+            if cls.wave_timer > cls.wave_time_limit:
+                # Force end of wave: remove all remaining enemies and give reward
+                for e in cls.enemies:
+                    e.health = 0
+                cls.enemies.clear()
+                wave = WAVES[cls.wave_index]
+                cls.player.money += wave["reward"]
+                cls.wave_running = False
+                cls.wave_index  += 1
+                # cut‑scenes
+                if cls.wave_index == 5 and not cls.mid_a_shown:
+                    cls._launch_cutscene(MID_SLIDES_A); cls.mid_a_shown=True
+                elif cls.wave_index == 10 and not cls.mid_b_shown:
+                    cls._launch_cutscene(MID_SLIDES_B); cls.mid_b_shown=True
+                elif cls.wave_index >= len(WAVES):
+                    cls._launch_cutscene(VICTORY_SLIDES, victory=True)
         elif cls.wave_index < len(WAVES):
             cls._start_wave()
 
@@ -321,6 +440,7 @@ class GameState:
         cls.step_index     = 0
         cls.remaining_in_step = WAVES[cls.wave_index]["steps"][0]["count"]
         cls.spawn_timer    = 0
+        cls.wave_timer     = 0  # Reset wave timer
 
     @classmethod
     def _spawner_step(cls):
@@ -351,9 +471,23 @@ class GameState:
 
     @classmethod
     def _spawn_enemy(cls, step):
+        # Spawn enemies from all edges, not just the top
+        edge = random.choice(['top', 'bottom', 'left', 'right'])
+        if edge == 'top':
+            x = random.randint(0, WIDTH)
+            y = 0
+        elif edge == 'bottom':
+            x = random.randint(0, WIDTH)
+            y = HEIGHT
+        elif edge == 'left':
+            x = 0
+            y = random.randint(0, HEIGHT)
+        else:  # right
+            x = WIDTH
+            y = random.randint(0, HEIGHT)
         cls.enemies.append(
-            spawn_enemy(step["type"], step["tier"],
-                        random.randint(0, WIDTH), 0))
+            spawn_enemy(step["type"], step["tier"], x, y)
+        )
         cls.remaining_in_step -= 1
 
     @classmethod
@@ -394,9 +528,9 @@ class GameState:
         cls.player.draw(cls.screen)
 
         font = pygame.font.SysFont(None, 30)
-        hud  = (f"Wave {cls.wave_index+1}/{len(WAVES)}    "
-                f"HP {int(cls.player.health)}/{cls.player.max_health}    "
-                f"Money {int(cls.player.money)}")
+        hud  = (f"Signal Strength {((cls.wave_index+1)/len(WAVES)):.3%}    "
+            f"HP {int(cls.player.health)}/{cls.player.max_health}    "
+            f"Roundness Points {int(cls.player.money)}    H for help")
         cls.screen.blit(font.render(hud, True, (255,255,255)), (20,20))
 
         if cls.show_upgrades:

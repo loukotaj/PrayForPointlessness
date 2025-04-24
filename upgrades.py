@@ -25,18 +25,18 @@ class UpgradeType(Enum):
 #                  BASE COSTS   &   LABELS                    #
 ###############################################################
 BASE_COSTS = {
-    UpgradeType.PLAYER_ATTACK   : 10,
+    UpgradeType.PLAYER_ATTACK   : 15,
     UpgradeType.PLAYER_HEALTH   : 10,
     UpgradeType.PLAYER_SPEED    : 10,
 
-    UpgradeType.CENTRAL_ATTACK  : 14,
+    UpgradeType.CENTRAL_ATTACK  : 15,
     UpgradeType.CENTRAL_DEFENSE : 14,
     UpgradeType.CENTRAL_REGEN   : 14,
 
-    UpgradeType.TOWER_ATTACK    : 12,
+    UpgradeType.TOWER_ATTACK    : 15,
     UpgradeType.TOWER_DEFENSE   : 12,
 
-    UpgradeType.PASSIVE_INCOME  : 18,
+    UpgradeType.PASSIVE_INCOME  : 20,
 }
 
 LABELS = {
@@ -51,7 +51,7 @@ LABELS = {
     UpgradeType.TOWER_ATTACK    : "Tower   Attack",
     UpgradeType.TOWER_DEFENSE   : "Tower   Defense",
 
-    UpgradeType.PASSIVE_INCOME  : "Passive Income",
+    UpgradeType.PASSIVE_INCOME  : "Passive Income (Buy!)",
 }
 
 ###############################################################
@@ -81,6 +81,7 @@ CATEGORIES = [
 ###############################################################
 class UpgradeManager:
     COST_MULT = 1.6   # price growth
+    COOLDOWN_MULT = 0.8  # multiplicative factor for cooldown upgrades
 
     def __init__(self, player, central, towers):
         self.p = player
@@ -103,8 +104,8 @@ class UpgradeManager:
 
         # ---------- PLAYER -------------------------------------
         if upg is UpgradeType.PLAYER_ATTACK:
-            self.p.bullet_damage += 2
-            self.p.fire_cooldown  = max(4, self.p.fire_cooldown - 2)
+            self.p.bullet_damage += 1
+            self.p.fire_cooldown = max(3, int(self.p.fire_cooldown * self.COOLDOWN_MULT))
 
         elif upg is UpgradeType.PLAYER_HEALTH:
             self.p.max_health += 12
@@ -116,9 +117,9 @@ class UpgradeManager:
 
         # ---------- CENTRAL TOWER ------------------------------
         elif upg is UpgradeType.CENTRAL_ATTACK:
-            self.c.shot_damage   += 2          # harder hit
+            self.c.shot_damage   += .5          # harder hit
             self.c.shot_range    += 30         # further reach
-            self.c.shot_cooldown  = max(5, self.c.shot_cooldown - 4)  # faster rate
+            self.c.shot_cooldown = max(3, int(self.c.shot_cooldown * self.COOLDOWN_MULT))
 
         elif upg is UpgradeType.CENTRAL_DEFENSE:
             self.c.max_health += 25
@@ -130,9 +131,9 @@ class UpgradeManager:
         # ---------- PLAYER‑PLACED TOWERS -----------------------
         elif upg is UpgradeType.TOWER_ATTACK:
             for t in self.towers:
-                t.shot_damage   += 1
+                t.shot_damage   += .5
                 t.shot_range    += 20
-                t.shot_cooldown  = max(5, t.shot_cooldown - 4)
+                t.shot_cooldown = max(4, int(t.shot_cooldown * self.COOLDOWN_MULT))
 
         elif upg is UpgradeType.TOWER_DEFENSE:
             for t in self.towers:
@@ -141,7 +142,7 @@ class UpgradeManager:
 
         # ---------- MISC ---------------------------------------
         elif upg is UpgradeType.PASSIVE_INCOME:
-            self.passive_income += 0.015    # ≈ 0 .9 $/sec @ 60 fps
+            self.passive_income += 0.02    
 
 
     # ---------------- passives tick ----------------

@@ -21,6 +21,7 @@ class MusicMode:
 class MusicManager:
     _tracks   : dict[str, list[str]] = {}
     _cur_mode : str | None = None
+    _sfx_cache: dict[str, pygame.mixer.Sound] = {}
 
     # ------------------------------------------------------------
     @classmethod
@@ -53,3 +54,19 @@ class MusicManager:
     @classmethod
     def fadeout(cls, ms: int = 1500):
         pygame.mixer.music.fadeout(ms)
+
+    @classmethod
+    def play_sfx(cls, name: str):
+        """Play a short sound effect from the music/ directory (e.g., 'laser.mp3')."""
+        path = os.path.join(MUSIC_ROOT, name)
+        if not os.path.isfile(path):
+            return
+        if name not in cls._sfx_cache:
+            try:
+                cls._sfx_cache[name] = pygame.mixer.Sound(path)
+            except Exception:
+                return
+        try:
+            cls._sfx_cache[name].play()
+        except Exception:
+            pass

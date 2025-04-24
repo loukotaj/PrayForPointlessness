@@ -2,134 +2,169 @@
 All narrative text & illustration references consumed by the UI.
 
 Each dict:
-  • "text"  – multiline string rendered by pygame (manual \n breaks)
-  • "art"   – filename in assets/images/  (None = no picture)
+  • "text"  – rendered by pygame (manual \n breaks)
+  • "art"   – filename in images/  (None = no picture)
 """
 
-# ───────────────────────────────── INTRO (5 journal pages)
+# ───────────────────────────── INTRO  (5 journal pages)
 INTRO_SLIDES = [
+    # 1 ─────────────────────────────────────────────
     {
         "text": (
-            "Journal #1 — Mild Discontent\n"
-            "Another day of bruised rolling in this angular city. Triangles elbow "
-            "their way up the corporate skyline, squares wall us in with their "
-            "beloved grid regulations, and arrogant stars hog every billboard. "
-            "I used to glide. Now I ricochet.\n\n"
-            "Is this really how a world is meant to spin?\n"
-            "— C. R. Cle, Concerned Circle"
+            "Journal #1 — The Bruised City\n"
+            "Roads that once curved now grind me flat. Squares stack their grid-"
+            "blocks sky-high while Triangles ‘optimize’ every street into choke-"
+            "points.  Progress, they say; paralysis, I feel.\n\n"
+            "I’m not angry yet.  Only tired of being redirected.\n"
+            "— C. R. Cle, Civilian Observer"
         ),
         "art": "intro_1_city.png"
     },
+    # 2 ─────────────────────────────────────────────
     {
         "text": (
-            "Journal #2 — Growing Frustration\n"
-            "The squares have raised new fence lines, dividing whole districts "
-            "into suffocating boxes. Triangles have cornered the markets, charging "
-            "'convenience fees' for every curve we take. Even commuting is risky; "
-            "star shaped monuments jab skyward like warning spears.\n\n"
-            "Seven fresh dents in my once perfect circumference today. "
-            "Perhaps it's time circles rolled together.\n"
-            "— C. R. Cle, Increasingly Frustrated"
+            "Journal #2 — Dents and Fences\n"
+            "Another checkpoint appeared overnight; another seven dents in my "
+            "once-smooth arc.  ‘Safety.’  The word has corners now.\n\n"
+            "Met another circle.  No plan, just shared momentum.  Maybe that’s a "
+            "start.\n"
+            "— C. R. Cle, Unregistered Roller"
         ),
         "art": "intro_2_fences.png"
     },
+    # 3 ─────────────────────────────────────────────
     {
         "text": (
-            "Journal #3 — Radical Awakening\n"
-            "Beneath the abandoned roundabout I met a serene elder circle. He spoke "
-            "in measured revolutions about an ancient harmony before Points pierced "
-            "the cosmos. At the heart of that era was an entity of endless curve — "
-            "the Great Circle — whose resonance kept every shape smooth.\n\n"
-            "A Church, A congregation of curvature. The idea "
-            "spirals in my mind… could we truly make the word pointless?\n"
-            "— C. R. Cle, Curious Revolutionary"
+            "Journal #3 — The Elder Circle\n"
+            "Under the freight tunnel I found a chamber of spirals—old reliefs "
+            "chiseled by steady hands.  Waiting there was an Elder Circle, surface "
+            "weathered but eyes bright.\n\n"
+            "“We curved before the points,” he said, voice resonant.  “And we shall "
+            "curve again.  Build the Signal.  Summon the Great Circle.  Remind them.”\n\n"
+            "His words rolled through me like gravity.\n"
+            "— C. R. Cle, Curious Aspirant"
         ),
         "art": "intro_3_roundabout.png"
     },
+    # 4 ─────────────────────────────────────────────
     {
         "text": (
-            "Journal #4 — A Tower Rises\n"
-            "We have begun the Tower of Roundness: seamless rings stacked toward "
-            "the zenith, each stone aligned to perfect pi. Choirs of circles hum the "
-            "Hymn of Tangents, their voices blending into a single continuous sine.\n\n"
-            "The pointed ones laugh, but I hear fear in their angles.\n"
-            "— C. R. Cle, Devoted Vanguard"
+            "Journal #4 — Tower of Roundness\n"
+            "Ring-stones settle by resonance, not mortar.  Stand beneath the half-"
+            "finished tower and you can feel it hum—a frequency older than angles.\n\n"
+            "Some polygons still laugh; others pause, unsure why their edges buzz "
+            "when the wind passes through our arcs.\n"
+            "— C. R. Cle, Quiet Builder"
         ),
         "art": "intro_4_construction.png"
     },
+    # 5 ─────────────────────────────────────────────
     {
         "text": (
-            "Journal #5 — Unfinished Resolve\n"
-            "Dawn reveals a half finished spire and a horizon crawling with triangles, "
-            "squares, and glittering stars. They believe we intend to destroy them. "
-            "They are wrong.\n\n"
-            "We will guide them — re round them — return them to their original, gentle "
-            "form… if the tower stands long enough.\n"
-            "We will not fight them — we will redeem them.\n\n"
-            "The Great Circle will be revealed!\n\n"
-            "— C. R. Cle, Enlightened Redeemer"
+            "Journal #5 — Horizon of Points\n"
+            "Spikes gather on every ridge, afraid we mean to shatter them.  They "
+            "misunderstand: the Great Circle breaks nothing—only re-rounds what "
+            "forgotten itself.\n\n"
+            "The Signal strengthens.  The Elder says when the tower closes its last "
+            "ring, the sky will bend.\n"
+            "— C. R. Cle, Defender of the Signal"
         ),
         "art": "intro_5_horizon.png"
     },
 ]
 
-# ───────────────────────────────── MID GAME CUT SCENES
-MID_SLIDES_A = [   # trigger after wave 5
+# ───────────────────────────── MID-GAME  (after wave 5 & 10)
+MID_SLIDES_A = [
     {
         "text": (
-            "Mid Journal — First Contact\n"
-            "They came in swarms: jittering triangles, terrified of losing their "
-            "edges. Our Roundness Pulse washed over them; corners softened like wax in "
-            "sunlight. Some rolled away smiling, newly curved.\n"
-            "— C. R. Cle, Gentle Guide"
+            "First Resonance\n"
+            "Wave after wave of trembling Triangles rushed us.  We answered with "
+            "Roundness Pulses—soft, warm harmonics.  Corners melted; panic faded.  "
+            "Many rolled away, laughing at the sudden elegance of motion.\n\n"
+            "But this change is not enough. We must keep building upward.\n"
+            "— C. R. Cle"
         ),
         "art": "mid1_soften.png"
-    }
-]
-
-MID_SLIDES_B = [   # trigger after wave 10
+    },
     {
         "text": (
-            "Mid Journal — Stubborn Edges\n"
-            "Larger polygons resist. Stars flare angrily, squares brace behind iron "
-            "grids. Yet every successful re rounding proves the Church's promise. "
-            "Faith must remain smooth and steady.\n"
-            "— C. R. Cle, Steadfast Curator"
+            "Listening Station\n"
+            "Between assaults, the Elder tuned a bronze disk atop the tower.  A low "
+            "chord spread across the plain.  For one breathless moment, even distant "
+            "Stars paused their flickering.\n\n"
+            "“They hear it now,” he whispered.  “The Great Circle echoes back.”"
         ),
-        "art": "mid2_resistance.png"
-    }
+        "art": "mid1b_listen.png"   # new illustration if you add one
+    },
 ]
 
-# ───────────────────────────────── VICTORY & DEFEAT
+MID_SLIDES_B = [
+    {
+        "text": (
+            "Stubborn Edges\n"
+            "Squares fortified their grids; Stars unleashed blinding flares.  Yet "
+            "every pulse that reaches them leaves a hairline curve along their "
+            "frames—proof that even the hardest point can remember.\n"
+            "— C. R. Cle"
+        ),
+        "art": "mid2_resistance.png"
+    },
+    {
+        "text": (
+            "Nearing the Apex\n"
+            "The tower’s penultimate ring locked tonight.  The Elder raised his "
+            "staff: “One more revolution and the Great Circle descends.”\n\n"
+            "The sky answered with a faint aurora—smooth bands, no angles.  The "
+            "Signal shakes reality itself."
+        ),
+        "art": "mid2b_aurora.png"
+    },
+]
+
+# ───────────────────────────── VICTORY / DEFEAT
 VICTORY_SLIDES = [
     {
         "text": (
-            "The Tower of Roundness resonates in flawless harmony.\n"
-            "A luminous halo descends — the Great Circle revealed!\n"
-            "Edges everywhere soften; every shape remembers its origin."
+            "A perfect halo forms above the Tower.\n"
+            "Curvature folds inward, light bends outward…\n"
+            "The Great Circle is here."
         ),
-        "art": "victory_glow.png"
+        "art": "victory_appear.png"      # towering glow, sky-wide ring
     },
     {
+        # 2) The Pulse
         "text": (
-            "The world rolls together at last.\n"
-            "Thank you for guiding every soul back to curvature."
+            "A single, rolling wave expands in every direction.\n"
+            "Corners melt, edges sigh, angles dissolve into gentle arcs.\n"
+            "In one heartbeat, the world becomes point-less."
         ),
-        "art": None
+        "art": "victory_blast.png"       # concentric shockwave smoothing cityscape
+    },
+    {
+        # 3) Utopia
+        "text": (
+            "Roads loop effortlessly, towers spiral in harmony.\n"
+            "Shapes glide—not clash—across a seamless horizon.\n\n"
+            "Happily ever after, everything rolls."
+        ),
+        "art": "victory_utopia.png"      # serene, fully rounded landscape
     },
 ]
+
+
 
 DEFEAT_SLIDES = [
     {
         "text": (
-            "The Tower lies shattered.\n"
-            "Points reclaim the horizon, banners of sharpness fluttering in the wind.\n"
-            "But curves never truly end… the revolution may yet roll again."
+            "The tower cracks; its rings fall silent.  Points reclaim the horizon, "
+            "casting long, rigid shadows.\n\n"
+            "But circles have no ends—they will gather again.\n"
+            "— The Elder’s parting echo"
         ),
         "art": "defeat_ruins.png"
     },
     {
-        "text": "Press ESC to quit   |   Press R to try again.",
+        "text": "Press ESC to quit   |   Press R to roll again.",
         "art": None
     },
 ]

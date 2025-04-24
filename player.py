@@ -3,6 +3,7 @@ from typing import List
 from projectile import Projectile          # <-- existing class
 from enemy import BaseEnemy
 from utils import draw_health_bar
+from music_manager import MusicManager  # <-- add this import
 
 class Player:
     def __init__(self, x, y,
@@ -55,6 +56,7 @@ class Player:
                                damage=self.bullet_damage,
                                is_friendly=True))
                 self.fire_timer = self.fire_cooldown
+                MusicManager.play_sfx("laser.mp3")  # <-- play sound effect
 
         # -------- invincibility frames -----------------------------------
         if self.iframes: self.iframes -= 1
@@ -64,6 +66,7 @@ class Player:
         if self.iframes: return
         self.health  = max(0, self.health - dmg)
         self.iframes = self.iframes_max
+        MusicManager.play_sfx("hurt.mp3")  # <-- play hurt sound
 
     # ================================================================ DRAW
     def draw(self, surf):
