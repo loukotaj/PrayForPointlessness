@@ -45,9 +45,9 @@ python main.py
 
 ## Credits
 
-- Game, code, and story by [Your Name]
-- Made for [Game Jam Name], 2024
+- Game, code, and story by Jacob Loukota and the collective widom of humanity. 
+- Made for Teslar Game Jam, 2024
 
 ## License
 
-MIT License (or specify your own)
+Not for any commercial use. No claim is made to the assets or code. 
