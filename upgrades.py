@@ -3,43 +3,47 @@ from enum import Enum
 from config import WIDTH, HEIGHT
 
 class UpgradeType(Enum):
-    PLAYER_ATTACK   = 1
-    PLAYER_HEALTH   = 2
-    PLAYER_SPEED    = 3
-    CENTRAL_ATTACK  = 4
-    CENTRAL_DEFENSE = 5
-    CENTRAL_REGEN   = 6
-    TOWER_ATTACK    = 7
-    TOWER_DEFENSE   = 8
-    PASSIVE_INCOME  = 9
+    PLAYER_ATTACK_DAMAGE = 1
+    PLAYER_ATTACK_SPEED  = 2
+    PLAYER_HEALTH        = 3
+    PLAYER_SPEED         = 4
+    CENTRAL_ATTACK       = 5
+    CENTRAL_DEFENSE      = 6
+    CENTRAL_REGEN        = 7
+    TOWER_ATTACK         = 8
+    TOWER_DEFENSE        = 9
+    PASSIVE_INCOME       = 10
 
 BASE_COSTS = {
-    UpgradeType.PLAYER_ATTACK   : 15,
-    UpgradeType.PLAYER_HEALTH   : 10,
-    UpgradeType.PLAYER_SPEED    : 10,
-    UpgradeType.CENTRAL_ATTACK  : 15,
-    UpgradeType.CENTRAL_DEFENSE : 14,
-    UpgradeType.CENTRAL_REGEN   : 14,
-    UpgradeType.TOWER_ATTACK    : 15,
-    UpgradeType.TOWER_DEFENSE   : 12,
-    UpgradeType.PASSIVE_INCOME  : 20,
+    UpgradeType.PLAYER_ATTACK_DAMAGE : 20,
+    UpgradeType.PLAYER_ATTACK_SPEED  : 15,
+    UpgradeType.PLAYER_HEALTH        : 10,
+    UpgradeType.PLAYER_SPEED         : 10,
+    UpgradeType.CENTRAL_ATTACK       : 15,
+    UpgradeType.CENTRAL_DEFENSE      : 14,
+    UpgradeType.CENTRAL_REGEN        : 14,
+    UpgradeType.TOWER_ATTACK         : 15,
+    UpgradeType.TOWER_DEFENSE        : 12,
+    UpgradeType.PASSIVE_INCOME       : 25,
 }
 
 LABELS = {
-    UpgradeType.PLAYER_ATTACK   : "Player  Attack",
-    UpgradeType.PLAYER_HEALTH   : "Player  Health",
-    UpgradeType.PLAYER_SPEED    : "Player  Speed",
-    UpgradeType.CENTRAL_ATTACK  : "Central Attack",
-    UpgradeType.CENTRAL_DEFENSE : "Central Defense",
-    UpgradeType.CENTRAL_REGEN   : "Central Regen",
-    UpgradeType.TOWER_ATTACK    : "Tower   Attack",
-    UpgradeType.TOWER_DEFENSE   : "Tower   Defense",
-    UpgradeType.PASSIVE_INCOME  : "Passive Income (Buy!)",
+    UpgradeType.PLAYER_ATTACK_DAMAGE : "Player Damage",
+    UpgradeType.PLAYER_ATTACK_SPEED  : "Player Fire Rate",
+    UpgradeType.PLAYER_HEALTH        : "Player Max HP",
+    UpgradeType.PLAYER_SPEED         : "Player Speed",
+    UpgradeType.CENTRAL_ATTACK       : "Central Atk",
+    UpgradeType.CENTRAL_DEFENSE      : "Central HP",
+    UpgradeType.CENTRAL_REGEN        : "Central Regen",
+    UpgradeType.TOWER_ATTACK         : "Tower Atk",
+    UpgradeType.TOWER_DEFENSE        : "Tower HP",
+    UpgradeType.PASSIVE_INCOME       : "Passive Income",
 }
 
 CATEGORIES = [
     {"label": "PLAYER",  "upgrades": [
-        UpgradeType.PLAYER_ATTACK,
+        UpgradeType.PLAYER_ATTACK_DAMAGE,
+        UpgradeType.PLAYER_ATTACK_SPEED,
         UpgradeType.PLAYER_HEALTH,
         UpgradeType.PLAYER_SPEED ]},
     {"label": "CENTRAL TOWER", "upgrades": [
@@ -55,14 +59,14 @@ CATEGORIES = [
 
 class UpgradeManager:
     COST_MULT = 1.6
-    COOLDOWN_MULT = 0.8
+    COOLDOWN_MULT = 0.82
 
     def __init__(self, player, central, towers):
         self.p = player
         self.c = central
         self.towers = towers
         self.levels = {u: 0 for u in UpgradeType}
-        self.passive_income = 0.02
+        self.passive_income = 0.04
         self.player_regen   = 0.02
         self.central_regen  = 0.02
 
@@ -71,9 +75,10 @@ class UpgradeManager:
 
     def apply(self, upg: UpgradeType) -> None:
         self.levels[upg] += 1
-        if upg is UpgradeType.PLAYER_ATTACK:
-            self.p.bullet_damage += 1
-            self.p.fire_cooldown = max(3, int(self.p.fire_cooldown * self.COOLDOWN_MULT))
+        if upg is UpgradeType.PLAYER_ATTACK_DAMAGE:
+            self.p.bullet_damage += 0.7  # nerfed from +1
+        elif upg is UpgradeType.PLAYER_ATTACK_SPEED:
+            self.p.fire_cooldown = max(5, int(self.p.fire_cooldown * self.COOLDOWN_MULT)) 
         elif upg is UpgradeType.PLAYER_HEALTH:
             self.p.max_health += 12
             self.p.health     += 12
@@ -91,15 +96,15 @@ class UpgradeManager:
             self.central_regen += 0.03
         elif upg is UpgradeType.TOWER_ATTACK:
             for t in self.towers:
-                t.shot_damage   += .5
+                t.shot_damage   += .7 
                 t.shot_range    += 20
-                t.shot_cooldown = max(4, int(t.shot_cooldown * self.COOLDOWN_MULT))
+                t.shot_cooldown = max(2, int(t.shot_cooldown * self.COOLDOWN_MULT))  
         elif upg is UpgradeType.TOWER_DEFENSE:
             for t in self.towers:
                 t.max_health += 15
                 t.health     += 15
         elif upg is UpgradeType.PASSIVE_INCOME:
-            self.passive_income += 0.02
+            self.passive_income += 0.015
 
     def update_passives(self):
         self.p.money += self.passive_income
@@ -109,10 +114,10 @@ class UpgradeManager:
             self.c.health = min(self.c.max_health, self.c.health + self.central_regen)
 
 class UpgradeMenu:
-    W, H   = 480, 700
-    PAD    = 18
-    ROW_H  = 22
-    BTN    = 30
+    W, H   = 600, 700  # wider menu
+    PAD    = 22
+    ROW_H  = 26
+    BTN    = 36
     FONT   = pygame.font.match_font("consolas,couriernew,monospace")
 
     def __init__(self, mgr: UpgradeManager):
@@ -188,13 +193,14 @@ class UpgradeMenu:
 
     def _inc_token(self, upg: UpgradeType) -> str:
         return {
-            UpgradeType.PLAYER_ATTACK   : "+2 dmg",
-            UpgradeType.PLAYER_HEALTH   : "+12 hp",
-            UpgradeType.PLAYER_SPEED    : "+0.7 spd",
-            UpgradeType.CENTRAL_ATTACK  : "+2 dmg",
-            UpgradeType.CENTRAL_DEFENSE : "+25 hp",
-            UpgradeType.CENTRAL_REGEN   : "+0.03 r",
-            UpgradeType.TOWER_ATTACK    : "+1 dmg",
-            UpgradeType.TOWER_DEFENSE   : "+15 hp",
-            UpgradeType.PASSIVE_INCOME  : "+0.9 $",
+            UpgradeType.PLAYER_ATTACK_DAMAGE : "+0.7 dmg",
+            UpgradeType.PLAYER_ATTACK_SPEED  : "-18% cd",
+            UpgradeType.PLAYER_HEALTH        : "+12 HP",
+            UpgradeType.PLAYER_SPEED         : "+0.7 spd",
+            UpgradeType.CENTRAL_ATTACK       : "+0.5 dmg/+30 rng +spd",
+            UpgradeType.CENTRAL_DEFENSE      : "+25 HP",
+            UpgradeType.CENTRAL_REGEN        : "+0.03 regen",
+            UpgradeType.TOWER_ATTACK         : "+0.7 dmg/+20 rng +spd",
+            UpgradeType.TOWER_DEFENSE        : "+15 HP",
+            UpgradeType.PASSIVE_INCOME       : "+0.015/frame",
         }.get(upg, "")

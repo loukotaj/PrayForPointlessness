@@ -9,8 +9,9 @@ class Player:
     def __init__(self, x, y,
                  radius=20, speed=5,
                  max_health=50,
-                 bullet_damage=8, bullet_speed=9,
-                 fire_cooldown=18):
+                 bullet_damage=6,  
+                 bullet_speed=9,
+                 fire_cooldown=24):  
         # -------------------------------------------------- stats / movement
         self.x, self.y   = x, y
         self.radius      = radius
@@ -18,7 +19,7 @@ class Player:
 
         self.max_health  = max_health
         self.health      = max_health
-        self.money       = 50
+        self.money       = 35  # nerfed starting money from 50
 
         # -------------------------------------------------- shooting
         self.bullet_damage   = bullet_damage

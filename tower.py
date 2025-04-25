@@ -9,7 +9,7 @@ from music_manager import MusicManager
 class CentralTower:
     def __init__(self, x, y,
                  max_health=200, radius=40,
-                 shot_cooldown=40, shot_speed=5,
+                 shot_cooldown=32, shot_speed=5,  
                  shot_damage=5, shot_range=300):
         self.x = x
         self.y = y
@@ -49,7 +49,10 @@ class CentralTower:
                 dist=math.hypot(dx,dy)
                 if dist>0:
                     dirx,diry=dx/dist, dy/dist
-                    proj= Projectile(self.x,self.y, dirx,diry,
+                    # Spawn projectile slightly outside the tower's radius
+                    px = self.x + dirx * (self.radius + 8)
+                    py = self.y + diry * (self.radius + 8)
+                    proj= Projectile(px, py, dirx, diry,
                                      speed=self.shot_speed, damage=self.shot_damage,
                                      is_friendly=True)
                     projectiles.append(proj)
@@ -100,7 +103,7 @@ class CentralTower:
 class PlayerTower:
     def __init__(self, x, y,
                  max_health=80, radius=20,
-                 shot_cooldown=40, shot_speed=5,
+                 shot_cooldown=32, shot_speed=5,  # buffed: cooldown from 40→32
                  shot_damage=4, shot_range=200):
         self.x = x
         self.y = y
@@ -121,7 +124,7 @@ class PlayerTower:
         self.damage_flash_duration=20
         self.damage_flash_timer=0
 
-        self.regen_rate = 0.08  # Health per frame (about 5 per second at 60fps)
+        self.regen_rate = 0.05 
 
     def update(self, enemies, projectiles):
         if self.health<=0:
@@ -145,9 +148,11 @@ class PlayerTower:
                 dist=math.hypot(dx,dy)
                 if dist>0:
                     dirx,diry=dx/dist,dy/dist
+                    px = self.x - dirx * (self.radius + 6)
+                    py = self.y - diry * (self.radius + 6)
                     proj= Projectile(
-                        x=self.x,y=self.y,
-                        dx=dirx,dy=diry,
+                        x=px, y=py,
+                        dx=dirx, dy=diry,
                         speed=self.shot_speed,
                         damage=self.shot_damage,
                         is_friendly=True

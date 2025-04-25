@@ -228,16 +228,24 @@ def spawn_enemy(shape_type, tier, x, y):
         return StarEnemy(x, y, tier)
     elif shape_type == "boss":
         return BossEnemy(x, y, tier)
+    elif shape_type == "fodder":
+        return FodderEnemy(x, y, tier)
     else:
         return SquareEnemy(x, y, tier=1)
 
 class TriangleEnemy(BaseEnemy):
     def __init__(self, x, y, tier=1):
         # Tier-based stats
-        health = 20 + 10*(tier-1)
-        speed = 2 + 0.3*(tier-1)
-        damage = 6 + 2*(tier-1)
-        kill_reward = 5 + 2*(tier-1)
+        # Nerf late game: reduce scaling for tier 3/4
+        if tier >= 3:
+            health = 20 + 10*(tier-1) - 6*(tier-2)
+            speed = 2 + 0.3*(tier-1) - 0.08*(tier-2)
+            damage = 6 + 2*(tier-1) - 0.7*(tier-2)
+        else:
+            health = 20 + 10*(tier-1)
+            speed = 2 + 0.3*(tier-1)
+            damage = 6 + 2*(tier-1)
+        kill_reward = 4 + 2*(tier-1)
         shot_cooldown = 999  # effectively never shoots
         shot_speed = 0
         shot_range = 0
@@ -303,10 +311,16 @@ class TriangleEnemy(BaseEnemy):
 
 class SquareEnemy(BaseEnemy):
     def __init__(self, x, y, tier=1):
-        health = 30 + 15*(tier-1)
-        speed = 1.5 + 0.2*(tier-1)
-        damage = 8 + 2*(tier-1)
-        kill_reward = 7 + 3*(tier-1)
+        # Nerf late game: reduce scaling for tier 3/4
+        if tier >= 3:
+            health = 30 + 15*(tier-1) - 10*(tier-2)
+            speed = 1.5 + 0.2*(tier-1) - 0.05*(tier-2)
+            damage = 8 + 2*(tier-1) - 0.7*(tier-2)
+        else:
+            health = 30 + 15*(tier-1)
+            speed = 1.5 + 0.2*(tier-1)
+            damage = 8 + 2*(tier-1)
+        kill_reward = 6 + 2*(tier-1)
         shot_cooldown = 80 - 8*(tier-1)
         shot_speed = 3 + 0.3*(tier-1)
         shot_range = 220 + 20*(tier-1)
@@ -368,10 +382,16 @@ class SquareEnemy(BaseEnemy):
 
 class StarEnemy(BaseEnemy):
     def __init__(self, x, y, tier=1):
-        health = 18 + 8*(tier-1)
-        speed = 2.5 + 0.4*(tier-1)
-        damage = 5 + 2*(tier-1)
-        kill_reward = 8 + 3*(tier-1)
+        # Nerf late game: reduce scaling for tier 3/4
+        if tier >= 3:
+            health = 18 + 8*(tier-1) - 5*(tier-2)
+            speed = 2.5 + 0.4*(tier-1) - 0.1*(tier-2)
+            damage = 5 + 2*(tier-1) - 0.6*(tier-2)
+        else:
+            health = 18 + 8*(tier-1)
+            speed = 2.5 + 0.4*(tier-1)
+            damage = 5 + 2*(tier-1)
+        kill_reward = 7 + 2*(tier-1)
         shot_cooldown = 60 - 7*(tier-1)
         shot_speed = 5 + 0.5*(tier-1)
         shot_range = 260 + 20*(tier-1)
@@ -488,10 +508,16 @@ class StarEnemy(BaseEnemy):
 class BossEnemy(BaseEnemy):
     def __init__(self, x, y, tier=1):
         # Boss stats: much larger, much more health, much slower
-        health = 300 + 300*(tier-1)  # Increased health
-        speed = 0.7 + 0.1*(tier-1)   # Much slower
-        damage = 18 + 4*(tier-1)
-        kill_reward = 50 + 10*(tier-1)
+        # Nerf late game: reduce scaling for tier 3/4
+        if tier >= 3:
+            health = 500 + 400*(tier-1) - 80*(tier-2)
+            speed = 0.7 + 0.1*(tier-1) - 0.02*(tier-2)
+            damage = 18 + 4*(tier-1) - 1.2*(tier-2)
+        else:
+            health = 500 + 400*(tier-1)
+            speed = 0.7 + 0.1*(tier-1)
+            damage = 18 + 4*(tier-1)
+        kill_reward = 40 + 7*(tier-1)
         shot_cooldown = 36 - 3*(tier-1)  # much faster
         shot_speed = 7 + 1*(tier-1)
         shot_range = 350 + 30*(tier-1)
@@ -566,3 +592,48 @@ class BossEnemy(BaseEnemy):
         bar_x = int(self.x)
         bar_y = int(self.y - 20)
         draw_health_bar(surface, bar_x, bar_y, bar_width, bar_height, self.health, self.max_health, color_fg=(255,80,200), border_width=2)
+
+class FodderEnemy(BaseEnemy):
+    def __init__(self, x, y, tier=1):
+        # Fodder: very weak, low reward, fast, no ranged, melee only
+        # Nerf late game: reduce scaling for tier 3/4
+        if tier >= 3:
+            health = 6 + 2*(tier-1) - 1*(tier-2)
+            speed = 2.7 + 0.2*(tier-1) - 0.04*(tier-2)
+            damage = 2 + (tier-1) - 0.2*(tier-2)
+        else:
+            health = 6 + 2*(tier-1)
+            speed = 2.7 + 0.2*(tier-1)
+            damage = 2 + (tier-1)
+        kill_reward = 1 + (tier-1)
+        shot_cooldown = 999
+        shot_speed = 0
+        shot_range = 0
+        size = 18 + 2*(tier-1)
+        super().__init__(
+            x, y,
+            speed=speed,
+            health=health,
+            damage=damage,
+            kill_reward=kill_reward,
+            shot_cooldown=shot_cooldown,
+            shot_speed=shot_speed,
+            shot_range=shot_range,
+            size=size,
+            can_shoot=False,
+            melee_range=18+2*(tier-1),
+            melee_damage=damage,
+            melee_cooldown=30
+        )
+        self.color = (180, 180, 180)
+        self.tier = tier
+
+    def draw(self, surface):
+        color = (220, 220, 220) if not self.is_hit else (255,255,255)
+        pygame.draw.circle(surface, color, (int(self.x + self.size/2), int(self.y + self.size/2)), self.size//2)
+        # Health bar
+        bar_width = self.size
+        bar_height = 4
+        bar_x = int(self.x)
+        bar_y = int(self.y - 8)
+        draw_health_bar(surface, bar_x, bar_y, bar_width, bar_height, self.health, self.max_health, color_fg=(180,180,180), border_width=1)

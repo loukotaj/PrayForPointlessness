@@ -76,7 +76,7 @@ class GameState:
     spawn_timer       = 0
     wave_running      = False
     wave_timer        = 0  # Add a timer for the current wave
-    wave_time_limit   = 3600  # 1 minute at 60fps
+    wave_time_limit   = 3600  # 1 minute at 60fps (default, but will be set per-wave)
 
     # slides / cut‑scenes
     slide_list  = INTRO_SLIDES
@@ -400,7 +400,7 @@ class GameState:
                 # Force end of wave: remove all remaining enemies and give reward
                 for e in cls.enemies:
                     e.health = 0
-                cls.enemies.clear()
+                # Do not clear enemies here; let them be removed after all projectiles processed
                 wave = WAVES[cls.wave_index]
                 cls.player.money += wave["reward"]
                 cls.wave_running = False
@@ -441,6 +441,12 @@ class GameState:
         cls.remaining_in_step = WAVES[cls.wave_index]["steps"][0]["count"]
         cls.spawn_timer    = 0
         cls.wave_timer     = 0  # Reset wave timer
+        # Set wave_time_limit longer for later waves (base: 60s, +10s per wave)
+        # Clamp to a reasonable max (e.g. 3 min)
+        base = 3600  # 60s
+        per_wave = 600  # 10s per wave
+        max_limit = 10800  # 180s
+        cls.wave_time_limit = min(base + per_wave * cls.wave_index, max_limit)
 
     @classmethod
     def _spawner_step(cls):
@@ -528,9 +534,23 @@ class GameState:
         cls.player.draw(cls.screen)
 
         font = pygame.font.SysFont(None, 30)
-        hud  = (f"Signal Strength {((cls.wave_index+1)/len(WAVES)):.3%}    "
+        ctrl_font = pygame.font.SysFont(None, 26)
+        ctrl_txt = "T: Tower   U: Upgrade   H: Help"
+        cls.screen.blit(ctrl_font.render(ctrl_txt, True, (180,255,180)), (20, 0))
+
+        if cls.wave_index >= len(WAVES):
+            if len(cls.enemies) == 0:
+                signal_strength = 1.0
+            else:
+                signal_strength = 0.999
+        else:
+            if cls.wave_index == len(WAVES) - 1 and len(cls.enemies) > 0:
+                signal_strength = (cls.wave_index + 0.99) / len(WAVES)
+            else:
+                signal_strength = (cls.wave_index + 1) / len(WAVES)
+        hud  = (f"Signal Strength {signal_strength:.3%}    "
             f"HP {int(cls.player.health)}/{cls.player.max_health}    "
-            f"Roundness Points {int(cls.player.money)}    H for help")
+            f"Roundness Points {int(cls.player.money)}")
         cls.screen.blit(font.render(hud, True, (255,255,255)), (20,20))
 
         if cls.show_upgrades:
